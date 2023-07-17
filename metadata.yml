@@ -1,0 +1,29 @@
+---
+title: 'Titolo'
+date: \today
+documentclass: report
+author: 
+- "Castellucci Matteo"
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[utf8]{inputenc}
+  \usepackage{amssymb}
+  \usepackage{amsmath}
+  \usepackage{textcomp}
+  \usepackage[a4paper, total={17cm, 24cm}]{geometry}
+  \usepackage[format=plain,labelfont=bf,up,textfont=normal,up,justification=justified,singlelinecheck=false,skip=0.01\linewidth]{caption}
+  \usepackage{indentfirst}
+  \usepackage{float}
+  \usepackage{graphicx}
+  \usepackage{tabularx}
+  ```
+indent: true
+fontsize: 12pt
+papersize: a4
+toc: true
+from: markdown+raw_attribute+tex_math_dollars+link_attributes+citations
+to: pdf
+reference-section-title: "Bibliografia"
+lang: it
+---

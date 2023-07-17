@@ -1,0 +1,33 @@
+name: Publish after tag
+
+on:
+  push:
+    tags:
+      - "v[1-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create file list
+        id: files_list
+        run: echo "::set-output name=files::$(printf '%s ' *.md)"
+      - name: Convert with pandoc
+        uses: docker://pandoc/latex:3.1
+        with:
+          args: >-
+            -o report.pdf
+            --citeproc
+            -N
+            --metadata-file=metadata.yml
+            --bibliography=bibliography.bib
+            --csl=ieee.csl
+            ${{ steps.files_list.outputs.files }}
+      - name: Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            report.pdf
