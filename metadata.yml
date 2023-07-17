@@ -1,9 +1,13 @@
 ---
-title: 'Titolo'
+title: |
+       | ``Identity''
+       | Progetto per il corso di Visione Artificiale
+       | A.A. 2021-2022
 date: \today
 documentclass: report
 author: 
 - "Castellucci Matteo"
+- "Gardini Lorenzo"
 header-includes:
 - |
   ```{=latex}
