@@ -18,7 +18,6 @@ jobs:
         with:
           args: >-
             -o report.pdf
-            --filter pandoc-crossref
             --citeproc
             -N
             --metadata-file=metadata.yml
