@@ -10,7 +10,8 @@ Gli ultimi due *dataset* sono quelli inerenti al secondo problema, ovvero quello
 
 \newpage
 
-```{#lst:captionAttr .python caption="Dizionario che associa ciascuna classe con la corrispondente etichetta numerica"}
+```{=latex}
+\begin{lstlisting}[language=Python, caption=Dizionario che associa ciascuna classe con la corrispondente etichetta numerica]
 {'bb': 0,
  'fd': 1,
  'fs': 2,
@@ -22,10 +23,11 @@ Gli ultimi due *dataset* sono quelli inerenti al secondo problema, ovvero quello
  'ms': 8,
  'sibs': 9,
  'ss': 10}
+\end{lstlisting}
 ```
 
 Non tutte le classi hanno lo stesso peso. La classe più presente di tutti è la coppia "padre - figlio" con 56.000 istanze, seguita da quella "madre - figlio" con 6.000 istanze in meno, che a sua volta è seguita da coppie di fratelli maschi con ulteriori 6.000 istanze in meno. Solo 4.000 istanze separano questa da quella "padre - figlia", così come da questa a quella "madre - figlia". Ultima classe fortemente rappresentata è quella di coppie di fratelli di genere distinto, con solo 3.000 istanze in meno rispetto alla precedente. Ci aspettiamo perciò che per quanto riguarda le classi elencate, un eventuale classificatore faccia meno fatica a identificarle correttamente, non solo per la distanza di età più ridotta. Ci sono comunque circa 23.000 istanze di differenza tra la prima e l'ultima classe citate. Molto meno rappresentate sono le classi di sorelle, solo 17.000 istanze, e quelle che riguardano i nonni e i nipoti, che oscillano tra le 3.000 e le 1.500 istanze l'una.
 
-Raggruppando le classi per super-tipologie di relazione di parentela, si nota come quella che associa genitori con figli è quella di gran lunga più rappresentata, quasi il doppio di quella immediatamente successiva che è quella che associa tra loro i fratelli. La classe che relaziona i nonni con i loro nipoti ha numeri trascurabili in confronto alle altre due, poco meno di un decimo di quella immediatamente precedente. Ci aspettiamo quindi che le prime due tipologie di relazioni siano facilmente individuate dai modelli, mentre l'ultima sia molto più difficile da distinguere.
+Raggruppando le classi per super-tipologie di relazione di parentela, si nota come quella che associa genitori con figli è quella di gran lunga più rappresentata, 176.000 istanze, quasi il doppio di quella immediatamente successiva che è quella che associa tra loro i fratelli, 92.000 istanze. La classe che relaziona i nonni con i loro nipoti ha numeri trascurabili in confronto alle altre due, poco meno di un decimo di quella immediatamente precedente. Ci aspettiamo quindi che le prime due tipologie di relazioni siano facilmente individuate dai modelli, mentre l'ultima sia molto più difficile da distinguere.
 
 C'è anche uno sbilanciamento tra i generi: gli uomini sono presenti nel dataset in circa 100.000 immagini in più rispetto alle donne. Questo significa che le relazioni tra uomini saranno più facili da individuare rispetto a quelle tra donne.

@@ -67,12 +67,260 @@ I risultati dell'addestramento dei modelli che fanno uso della funzione somma di
 
 Da ultimo, si è considerato l'addestramento che ha coinvolto i modelli che hanno fatto uso della funzione differenza di quadrati. In questo caso, l'addestramento sembra essere stato molto deciso: numero di alberi massimo per ogni *ensemble*, profondità massima degli stessi sempre vicina al massimo, *learning rate*, parametro "gamma" e percentuale di colonne per albero minimi. La percentuale di istanze campionate per albero rimane elevata, anche se non sempre massima, segno di un basso *overfitting*, mentre come spesso è successo il peso minimo di una foglia varia considerevolmente tra i migliori modelli.
 
-Una volta identificato il migliore modello in corrispondenza di ciasuna funzione, ognuno di questi viene riaddestrato sull'intero *dataset* di *training* per poter valutare le sue prestazioni sul *dataset* di test. Gli *score* per ciascun modello mostrano un discreto *overfitting*, con delle differenze tra accuratezza di *training* e di *test* che oscillano attorno a 30-40 punti percentuali. La differenza minore si ha per le funzioni che impiegano la differenza, con uno scarto tra le accuratezze mai superiore al 25%. In generale comunque, i risultati sono abbastanza scoraggianti: le accuratezze sul *test set* non superano mai il 55%, segno che i modelli non sono stati in grado di generalizzare e di apprendere qualcosa di significativo dalle *feature*. Questo lo si nota anche dalle "*confusion matrix*", dove osservando i positivi e i negativi predetti, sono sempre all'incirca lo stesso numero, sia che lo fossero davvero sia che non lo fossero, con una predilezione generale per la classe dei negativi. Osservando le matrici, il modello che tendenzialmente sbaglia di meno è di nuovo quello che si basa sulla differenza, seguito dalla differenza al quadrato e dal quadrato delle differenze.
+Una volta identificato il migliore modello in corrispondenza di ciascuna funzione, ognuno di questi viene riaddestrato sull'intero *dataset* di *training* per poter valutare le sue prestazioni sul *dataset* di test. Gli *score* per ciascun modello mostrano un discreto *overfitting*, con delle differenze tra accuratezza di *training* e di *test* che oscillano attorno a 30-40 punti percentuali. La differenza minore si ha per le funzioni che impiegano la differenza, con uno scarto tra le accuratezze mai superiore al 25%. In generale comunque, i risultati sono abbastanza scoraggianti: le accuratezze sul *test set* non superano mai il 55%, segno che i modelli non sono stati in grado di generalizzare e di apprendere qualcosa di significativo dalle *feature*. Questo lo si nota anche dalle "*confusion matrix*", dove osservando i positivi e i negativi predetti, sono sempre all'incirca lo stesso numero, sia che lo fossero davvero sia che non lo fossero, con una predilezione generale per la classe dei negativi. Osservando le matrici, il modello che tendenzialmente sbaglia di meno è di nuovo quello che si basa sulla differenza, seguito dalla differenza al quadrato e dal quadrato delle differenze.
 
-Anche in questo caso, per velocizzare il processo di addestramento, è stato utilizzato come "classificatore finale" un modello della famiglia XGBoost, lo stesso che in precedenza. Gli iperparametri da tarare per esso sono quindi gli stessi che in precedenza. Se i classificatori che forniscono il loro output sono stati determinati al passo precedente, quello finale che compone i loro risultati viene determinato tramite una seconda *grid search* con "Bayesian Optimization", che riutilizza gli stessi valori per gli iperparametri della precedente. Anche in questo caso viene fatto *caching* dell'operazione.
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/sum_bin_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione somma. L'accuratezza di \textit{training} era 90\%, quella di 
+    \textit{test} 53\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/prod_bin_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione prodotto. L'accuratezza di \textit{training} era 88\%, quella di 
+    \textit{test} 54\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/diff_bin_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione differenza. L'accuratezza di \textit{training} era 69\%, quella di 
+    \textit{test} 54\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/squared_sum_bin_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione somma al quadrato. L'accuratezza di \textit{training} era 89\%, quella di 
+    \textit{test} 53\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/squared_diff_bin_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione differenza al quadrato. L'accuratezza di \textit{training} era 79\%, quella di \textit{test} 55\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/sum_squares_bin_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione somma di quadrati. L'accuratezza di \textit{training} era 89\%, quella di 
+    \textit{test} 52\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/diff_squares_bin_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione differenza di quadrati. L'accuratezza di \textit{training} era 71\%, quella di \textit{test} 53\%}
+\end{figure}
+```
+
+Anche in questo caso, per velocizzare il processo di addestramento, è stato utilizzato come "classificatore finale" un modello della famiglia XGBoost, lo stesso che in precedenza. Gli iperparametri da tarare per esso sono quindi gli stessi che in precedenza. Se i classificatori che forniscono il loro output sono stati determinati al passo precedente, quello finale che compone i loro risultati viene determinato tramite una seconda *grid search* con "Bayesian Optimization", che riutilizza gli stessi valori per gli iperparametri della precedente.
 
 I risultati dell'addestramento mostrano come il modello finale risulti troppo complesso e affetto da chiaro *overfitting*, in quanto lo *score* medio tra tutti i modelli non sia mai inferiore al 99,99%. Questo si nota anche dai valori degli iperparametri per quelli che teoricamente sono i migliori modelli: in praticamente nessuno di essi si nota una chiara tendenza. La percentuale di istanze campionate, il numero di alberi, il peso minimo di una foglia, la profondità massima di un albero e la percentuale di colonne considerate per un nuovo albero possono essere alti o bassi indifferentemente rispetto allo *score* finale. Gli iperparametri che mostrano meno variabilità sono il *learning rate*, che non supera mai il 45% e il parametro "gamma".
 
 Scelto quello che teoricamente è il miglior modello addestrato, viene poi valutato sul *test set*. Il risultato finale mostra quello che già abbiamo notato in precedenza: l'accuratezza sul *training set* è oltre il 90%, ma quella sul *test set* è attorno al 50%, segno che non ha generalizzato nulla ed ha imparato i *pattern* "a memoria". Anche in questo caso, la rete preferisce catalogare tutte le istanze come negativi, avendo una percentuale di veri positivi e veri negativi molto bassa.
 
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/final_bin_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello finale. L'accuratezza di \textit{training} era 93\%, quella di \textit{test} 53\%}
+\end{figure}
+```
 
+Vengono qui di seguito mostrati i cinque casi in cui il modello ha dato i migliori risultati in ordine decrescente, cioè prima i migliori in assoluto. Come si può osservare il modello classifica tutte le coppie come "non parenti". Questo è in linea con la *confusion matrix* mostrata in precedenza e indica che il modello ha appreso poco dalle *feature* e classifica la maggior parte delle coppie di persone come "non parenti". Tra le *feature* che noi riteniamo che il modello utilizzi maggiormente per classificare siano il colore della pelle, la posa e/o posizione del volto e la forma degli occhi. La maggiore risoluzione delle immagini permette una estrazione migliore delle *feature* e un conseguente miglioramento nelle prestazioni del modello.
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/top_bin_1.png}
+    \includegraphics[width=0.45\textwidth]{images/top_bin_2.png}
+    \includegraphics[width=0.45\textwidth]{images/top_bin_3.png}
+    \includegraphics[width=0.45\textwidth]{images/top_bin_4.png}
+    \includegraphics[width=0.45\textwidth]{images/top_bin_5.png}
+    \caption{Le cinque istanze in cui il modello finale ha dato i migliori risultati}
+\end{figure}
+```
+
+Se osserviamo le istanze per le quali il modello predice la classe "parente" commettendo minore errore pensiamo si possa osservare che, oltre alle caratteristiche individuate nel punto precedente, anche la forma della bocca e un sorriso che mostra i denti contribuiscano alla classificazione corretta.
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/top_rel_bin_1.png}
+    \includegraphics[width=0.45\textwidth]{images/top_rel_bin_2.png}
+    \includegraphics[width=0.45\textwidth]{images/top_rel_bin_3.png}
+    \includegraphics[width=0.45\textwidth]{images/top_rel_bin_4.png}
+    \includegraphics[width=0.45\textwidth]{images/top_rel_bin_5.png}
+    \caption{Le cinque istanze della classe dei positivi in cui il modello finale ha dato i migliori risultati}
+\end{figure}
+```
+
+Vengono qui di seguito mostrati i casi in cui il modello ha dato i peggiori risultati in ordine decrescente, prima i peggiori in assoluto.
+Specularmente rispetto a prima, gli errori maggiori commessi dal modello riguardano in maggioranza le coppie legate da una parentela. Tra le caratteristiche delle immagini che portano il modello a compiere errori c'è il fatto che sono rimaste immagini "_grayscale_" dal processo di *preprocessing* delle immagini. Altri fattori che pensiamo abbiano inciso negativamente sulla qualità della predizione sono la bassa qualità dell'immagine, la differente illuminazione tra le due immagini, la presenza di occhi chiusi o socchiusi e la presenza di occhiali.
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/last_bin_1.png}
+    \includegraphics[width=0.45\textwidth]{images/last_bin_2.png}
+    \includegraphics[width=0.45\textwidth]{images/last_bin_3.png}
+    \includegraphics[width=0.45\textwidth]{images/last_bin_4.png}
+    \includegraphics[width=0.45\textwidth]{images/last_bin_5.png}
+    \caption{Le cinque istanze in cui il modello finale ha dato i peggiori risultati}
+\end{figure}
+```
+
+## Addestramento del classificatore per il secondo problema
+
+L'addestramento del secondo classificatore si è svolto in maniera analoga a quello del primo. Questo significa che le *feature* utilizzate per ciascuna immagine sono sempre le stesse, cambia solamente l'etichetta utilizzata per ciascuna delle coppie di immagini, dato che si utilizza il *dataset* inerente al secondo problema.
+
+Come prima cosa perciò si è costruito il *dataset* delle coppie di *training* per il secondo problema, dove ogni immagine è sostituita con le *feature* corrispondenti. Viene perciò creata una matrice con tante righe quante sono le istanze dalle quali è stato possibile estrarre tutte le *feature*, ma con un numero di colonne che è doppio rispetto al numero di *feature* per immagine. Nel *dataset* originale si trattengono solamente le coppie di immagini per cui le *feature* sono state estratte da entrambe, così da avere le etichette delle classi. La stessa cosa viene fatta anche per il *dataset* di test delle coppie per il secondo problema.
+
+La rimozione di coppie dal *dataset* di *training* ha fatto in modo di modificare le frequenze delle diverse classi. Ora la relazione più presente è quella tra fratelli maschi, precedentemente terza, seguita da quella "padre - figlio", precedentemente prima, e infine quella "fratello - sorella", precedentemente settima. La relazione "madre - figlio", in origine seconda, ora è quarta. Rimangono invece pressoché invariate le altre, ovvero "madre - figlia", "padre - figlia" e quella tra sorelle. In fondo alla classifica per frequenza troviamo sempre quelle che coinvolgono i nonni, già sottorappresentate in origine.
+
+Non c'è stato uno sbilanciamento particolarmente significativo tra le frequenze: se si considerano i rapporti tra esse, ad esempio tra la prima con 8.000 istanze e la sesta con 4.800, si nota come sono rimasti pressoché invariati, segno che l'eliminazione è avvenuta pressoché in maniera casuale e perciò simile ad un *downsampling* del *dataset*. Per questo motivo, ci si è riservati di non effettuare ulteriori manipolazioni su questo *dataset* per correggere le frequenze.
+
+Una distribuzione simile di frequenze, anche se, in questo caso, con le varie classi ordinate in modo differente, si riscontra anche nel *test set*. Essendo quindi un *dataset* rappresentativo per il corrispettivo *training set*, anche su questo non sono state effettuate ulteriori manipolazioni.
+
+Questo secondo problema è un problema multiclasse dove le istanze per ciascuna di esse sono sbilanciate. Per fare in modo che questo non influenzi negativamente l'addestramento, è stato assegnato un peso a ciascuna classe inversamente proporzionale alla sua presenza nel *dataset* di *training*: più è presente e meno peso avrà nell'addestramento.
+
+Anche per questo secondo problema viene utilizzato un modello della famiglia "XGBoost", l'unica differenza risiede nel fatto che la funzione obiettivo è ora "softmax", la stessa utilizzata nelle reti neurali quando occorre risolvere un problema di classificazione multiclasse. Questa funzione fa infatti sì che per ogni input sia restituito un vettore di output i cui valori sommino a 1, in modo tale che possano essere interpretati come le probabilità di appartenenza alle diverse classi.
+L'addestramento avviene sempre utilizzando *grid search* con "Bayesian Optimization" a partire dagli stessi valori utilizzati nei casi precedenti.
+
+L'addestramento dei modelli che facevano uso della funzione di somma ha avuto come risultato il fatto che i migliori tra essi hanno uno *score* attorno al 25%, sicuramente non incoraggiante. Tra questi modelli, l'addestramento ha prediletto degli *ensemble* tendenzialmente con molti alberi, ma molto bassi, dato che l'altezza massima non supera il valore di 2. Il *learning rate* è rimasto relativamente contenuto, segno di un approccio più conservativo nell'introdurre nuovi "weak classifiers". Comportamento simile, anche se più variegato, per quanto riguarda il parametro "gamma". Da ultimo invece, non si nota una chiara tendenza per quanto riguarda la percentuale di colonne e di istanze del *dataset* di *training* da considerare per ogni nuovo albero, così come il peso minimo di ogni foglia.
+
+Leggermente più alto lo *score* per il modello che utilizza la funzione prodotto, attorno al 26%, comunque decisamente basso. In questo caso, l'addestramento ha prediletto degli *ensemble* con molti alberi, di altezza che non supera la metà del valore previsto per il suo massimo. Il *learning rate* rimane relativamente basso, come stabile rimane la percentuale di istanze campionate per ogni albero, tra il 60% e il 70%, e la percentuale di colonne considerate del *dataset* di *training* per ogni albero, ovvero pressoché la totalità delle stesse. Più ondivago il comportamento del parametro "gamma" e del peso minimo delle foglie.
+
+Per quanto riguarda l'addestramento dei modelli che utilizzano la funzione differenza, lo score rimane inalterato rispetto al caso precedente, così come il numero di alberi nell'*ensemble*, la profondità massima degli stessi, la percentuale di istanze campionate per ogni nuovo albero e il *learning rate*. Diversamente da prima, invece, la percentuale di colonne mantenute per albero, mediamente molto poche. Il parametro "gamma" e il il peso minimo delle foglie non mostrano nessuna tendenza particolare.
+
+I migliori modelli addestrati che utilizzano la somma al quadrato come funzione di aggregazione hanno mediamente uno *score* del 25%. In generale, l'addestramento ha prediletto come sempre *ensemble* fatti da alberi profondi e numerosi. L'approccio seguito è rimasto tendenzialmente conservativo, con *learning rate* relativamente bassi. Diversamente dal solito, ha inciso particolarmente il peso delle foglie degli alberi, che nei migliori modelli è sempre rimaso relativamente elevato e comunque superiore a 3. Tutti gli altri parametri invece non mostrano una tendenza precisa.
+
+I modelli che utilizzano come funzione di aggregazione il quadrato della differenza hanno uno *score* che rimane mediamente più basso tra tutti quelli visti finora, infatti non supera mai il 22%, neanche tra i migliori. In questo caso, praticamente tutti i parametri non esibiscono tendenze precise, infatti è sempre presente almeno un "outlier" per ciascuno di essi se si vogliono individuare degli specifici comportamenti. In ogni caso, l'addestramento ha preferito *ensemble* con alberi abbastanza profondi e con un numero elevato di alberi, un valore del parametro "gamma" ridotto e un *learning rate* non alto, ma sicuramente non molto basso come in altri casi. La percentuale di colonne mantenute del *dataset* di *training* per ciascun nuovo albero è rimasta di norma elevata, così come il peso minimo delle foglie. Il numero di istanze campionate non mostra una tendenza particolare.
+
+Utilizzando come funzione di aggregazione la somma di quadrati, lo score medio dei migliori modelli si aggira attorno al 24,5%. Pur con un outlier, i migliori 5 modelli hanno tutti *ensemble* con molti alberi, minimamente profondi e con un peso minimo delle foglie pari al massimo possibile. Inoltre, la percentuale di istanze campionate per ciascun nuovo albero è sempre pari al minimo, segno di una tendenza a voler mantenere quanto più basso possibile l'*overfitting*. Anche l'approccio nell'introdurre nuovi alberi si è mantenuto conservativo, con *learning rate* nell'ordine di $10^{-2}$. Nessuna tendenza si può individuare per i parametri "gamma" e percentuale delle colonne campionate.
+
+L'addestramento dei modelli che utilizzavano la funzione di aggregazione differenza di quadrati hanno ottenuto dei risultati sopra la media, circa del 25,5%, anche se rimangono deludenti. Come spesso visto in passato, si torna ad avere *ensemble* molto grandi e con alberi profondi, pesi minimi delle foglie tendenzialmente elevati, *learning rate* piccoli e percentuale di campionamento delle istanze del *dataset* di *training* ridotto. Anche la percentuale di colonne utilizzate per ogni nuovo albero è relativamente elevata, mentre nulla si può dire per il parametro "gamma".
+
+Considerando quindi solamente i migliori classificatori e riaddestrandoli sull'intero *dataset* per poter valutare le loro accuratezze, si può notare, eccetto che per la funzione di somma e di somma di quadrati, un forte *overfitting*. Infatti, le accuratezze di *training* si aggirano tra il 70% e il 95%, mentre quelle di *test* si aggirano attorno al 20-25%. Anche per le funzioni citate, comunque, lo *score* di training è rispettivamente del 44% e del 54%. Anche se i modelli sono migliori di uno che tenta semplicemente una risposta casuale, bisogna considerare che le classi non sono tra di loro bilanciate e perciò possono semplicemente avere appreso le distribuzioni delle classi. Per quanto riguarda l'osservazione delle *confusion matrix*, si può notare come le parentele inerenti ai nonni, quelle con meno istanze di tutte, non vengono praticamente mai classificate come tali, né succede praticamente mai che un'istanza venga classificata come di queste classi, segno che sono state completamente snobbate. Le classi di norma più correttamente classificate sono "padre-figlio", "madre-figlia", "padre-figlia", "madre-figlio", quelle più presenti. Un'altra classe che alcuni modelli come quelli che utilizzano la differenza e la differenza di quadrati riescono ad individuare in un numero di istanze compatibile con le altre è quella dei "fratelli maschi", la più presente nel *training set*. Nonostante questi risultati incoraggianti, è pur sempre vero che le classi citate sono anche quelle per cui la rete si confonde di più e vi classifica istanze che non vi appartengono.
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/sum_mul_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione somma. L'accuratezza di \textit{training} era 44\%, quella di 
+    \textit{test} 20\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/prod_mul_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione somma. L'accuratezza di \textit{training} era 98\%, quella di 
+    \textit{test} 23\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/diff_mul_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione somma. L'accuratezza di \textit{training} era 96\%, quella di 
+    \textit{test} 27\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/squared_sum_mul_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione somma. L'accuratezza di \textit{training} era 73\%, quella di 
+    \textit{test} 22\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/squared_diff_mul_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione somma. L'accuratezza di \textit{training} era 99\%, quella di 
+    \textit{test} 20\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/sum_squares_mul_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione somma. L'accuratezza di \textit{training} era 54\%, quella di 
+    \textit{test} 22\%}
+\end{figure}
+```
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/diff_squares_mul_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello ottenuto a partire dalla funzione somma. L'accuratezza di \textit{training} era 72\%, quella di 
+    \textit{test} 26\%}
+\end{figure}
+```
+
+Analogamente a quanto fatto nel primo problema, sono stati costruiti i *dataset* che devono essere utilizzati dal modello XGBoost finale, che farà da "ensemble classifier" dei migliori modelli per ciascuna funzione di aggregazione dei dati individuati in precedenza. Una volta fatto, lo addestriamo nello stesso modo in cui abbiamo addestrato il modello finale del primo problema, quindi tarando gli stessi iperparametri scegliendoli tra gli stessi potenziali valori usando la medesima tecnica di "Bayesian Optimization" che in precedenza.
+
+In questo caso, l'addestramento del modello finale ha un risultato che indica chiaramente la presenza di *overfitting*, come la sua controparte per il problema binario. Lo *score* è infatti sempre superiore al 98%. Se si vanno ad osservare gli altri parametri, si nota infatti per tutti un comportamento incerto senza tendenze precise. I parametri più "stabili" sono il peso minimo delle foglie, relativamente basso, il parametro "gamma", anch'esso relativamente basso, e il numero di alberi per modello, elevato.
+
+Se si analizza l'accuratezza di quest'ultimo modello, si notano risultati analoghi a quelli dei modelli precedenti: un'accuratezza di *test* attorno al 20% e una di *training* attorno al 99%, chiaro segno di *overfitting*. Le classi più correttamente classificate rimangono le relazioni di parentela "padre-figlio", "madre-figlio", "madre-figlia" e "padre-figlia", che però sono anche le classi dove vengono più classificate istanze estranee. Le classi che riguardano i nonni vengono dal modello completamente ignorate.
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/final_mul_cm.png}
+    \caption{\textit{Confusion matrix} per il miglior modello finale. L'accuratezza di \textit{training} era 99\%, quella di \textit{test} 20\%}
+\end{figure}
+```
+
+Similmente al modello costruito per il primo problema le *feature* meglio rappresentative sono la forma del viso, il colore degli occhi e della pelle. Anche in questo caso la luminosità delle immagini, la loro risoluzione e la posa del volto sembrano ricoprire un ruolo importante per una corretta classificazione.
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/top_mul_1.png}
+    \includegraphics[width=0.45\textwidth]{images/top_mul_2.png}
+    \includegraphics[width=0.45\textwidth]{images/top_mul_3.png}
+    \includegraphics[width=0.45\textwidth]{images/top_mul_4.png}
+    \includegraphics[width=0.45\textwidth]{images/top_mul_5.png}
+    \caption{Le cinque istanze in cui il modello finale ha dato i migliori risultati}
+\end{figure}
+```
+
+In questo caso peculiari sono le casistiche errate, in cui è presente una grande quantità di bambini. Questo è probabilmente riconducibile alle loro caratteristiche androgine, che rendono difficoltoso distinguere i bambini dalle bambine. Da notare anche il fatto che il modello classifica con più probabilità i volti come maschili, probabilmente perché gli uomini sono più presenti nel *dataset*. Sicuramente incidono anche le differenze di luminosità, risoluzione e la presenza di immagini con occhi chiusi o socchiusi.
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/last_mul_1.png}
+    \includegraphics[width=0.45\textwidth]{images/last_mul_2.png}
+    \includegraphics[width=0.45\textwidth]{images/last_mul_3.png}
+    \includegraphics[width=0.45\textwidth]{images/last_mul_4.png}
+    \includegraphics[width=0.45\textwidth]{images/last_mul_5.png}
+    \caption{Le cinque istanze in cui il modello finale ha dato i peggiori risultati}
+\end{figure}
+```

@@ -13,6 +13,15 @@ La correzione di gamma è l'applicazione di una funzione non lineare a tutti i p
 L'idea è identificare automaticamente per ciascuna immagine il valore del parametro e la scelta è ricaduta su di un metodo utilizzato anche in alcuni software di *photoediting*. Questa tecnica consiste nel calcolare gamma come il rapporto del logaritmo della media della luminosità di tutti i pixel fratto il logaritmo di 128. In questo modo, nell'immagine la luminosità media apparirà come 50% luminosa e tutte le altre saranno tarate in conseguenza.
 Poiché i pixel sono nello spazio colore BGR, viene prima fatta una conversione nello spazio HSV, corretto il canale inerente alla luminosità, ovvero "Value", e poi le immagini sono riconvertite in BGR.
 
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth]{images/before_gamma.png}
+    \includegraphics[width=0.25\textwidth]{images/after_gamma.png}
+    \caption{Un'immagine del \textit{dataset} originale con a fianco la sua versione ``gamma corrected''}
+\end{figure}
+```
+
 ## Forma del naso
 
 Per quanto riguarda il naso, la *feature* più interessante è certamente la sua forma. Anche in questo caso, la prima cosa che è stato necessario fare è quella di individuare la parte dell'immagine che la contiene.
@@ -31,6 +40,19 @@ Infine, per non perdere completamente tutte le informazioni sulla forma del naso
 
 L'estrazione delle feature tramite "shape matrix" è stata ritenuta troppo semplice in confronto a descrittori così avanzati come gli E.F.D. a parità di numero di valori. Indicatori come "Beam Angle Statistics" e i descrittori di Fourier semplici soffrono del problema di non poter essere estratti in numero fisso. Questo significa che o è necessario aggiungere del "padding" alla sequenza dei punti che compongono il contorno o occorre campionarlo per arrivare al numero desiderato di punti. Entrambe le operazioni, che vanno ad introdurre errore nella rappresentazione, non sono affatto desiderabili. Solamente i descrittori di Fourier, essendo coefficienti di serie di Fourier, possono essere troncati dopo essere stati calcolati ottenendo ancora un risultato valido, ma approssimato. Rimane irrisolto però il problema del padding. L'utilizzo degli E.F.D. risulta perciò più semplice a parità di informazioni estratte.
 
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth]{images/nose_zone.png}
+    \includegraphics[width=0.25\textwidth]{images/nose_canny.png}
+    \includegraphics[width=0.25\textwidth]{images/nose_closed.png}
+    \includegraphics[width=0.5\textwidth]{images/nose_data.png}
+    \includegraphics[width=0.2\textwidth]{images/nose_efd.png}
+    \caption{Da sinistra a destra, dall'alto in basso: la zona dell'immagine associata al naso, il risultato dell'applicazione del ``Canny edge detector'', il risultato dell'applicazione delle operazioni di morfologia matematica, la componente connessa più grande, la sua \textit{bounding box} con il centroide al suo interno, il suo
+    \textit{convex hull} e infine la forma come estratta attraverso gli ``elliptic Fourier descriptors''}
+\end{figure}
+```
+
 ## Forma della bocca
 
 Il processo di estrazione della forma della bocca è analogo a quello per la forma del naso, in quanto il metodo per identificare i contorni è sempre lo stesso. Naturalmente, la parte dell'immagine coinvolta come i parametri dei diversi passi che compongono il processo sono differenti, ma i concetti rimangono sempre gli stessi.
@@ -40,6 +62,18 @@ In un volto, la bocca è sempre posizionata al di sotto del naso. Per questo mot
 Con l'utilizzo del "Canny edge detector" sono stati estrapolati i bordi della bocca dall'area dell'immagine identificata in precedenza. Sull'area è statp prima applicato un filtro gaussiano 3x3 con sigma 0, poi il *detector* effettivo. Le soglie di isteresi che si sono rivelate migliori sono state 40 e 60 e anche in questo caso si è ricorso al gradiente più preciso. Si sono applicate le stesse operazioni di chiusura, dilatazione ed erosione che in precedenza. In questo caso per tutte le operazioni si è usato un elemento strutturante ellissoidale 7x7.
 
 Da ultimo, sono state eliminate tutte le componenti connesse che non erano la più grande e poi, su questa, sono stati calcolati il centroide e l'elongazione. Calcolati i contorni è stato poi possibile calcolare il *convex hull* e quindi la convessità. Per catturare anche informazioni più complesse, sono stati calcolati i descrittori ellittici di Fourier di grado 16.
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth]{images/mouth_zone.png}
+    \includegraphics[width=0.3\textwidth]{images/mouth_canny.png}
+    \includegraphics[width=0.3\textwidth]{images/mouth_closed.png}
+    \includegraphics[width=0.6\textwidth]{images/mouth_data.png}
+    \includegraphics[width=0.2\textwidth]{images/mouth_efd.png}
+    \caption{Da sinistra a destra, dall'alto in basso: la zona dell'immagine associata alla bocca, il risultato dell'applicazione del ``Canny edge detector'', il risultato dell'applicazione delle operazioni di morfologia matematica, la componente connessa più grande, la sua \textit{bounding box} con il centroide al suo interno, il suo \textit{convex hull} e infine la forma come estratta attraverso gli ``elliptic Fourier descriptors''}
+\end{figure}
+```
 
 ## Forma di occhi e sopracciglia
 
@@ -51,6 +85,22 @@ In seguito è stato applicato un filtro gaussiano su entrambe le sottoimmagini e
 Da ultimo, vengono estratti i descrittori di forma per gli occhi e le sopracciglia. In caso le operazioni precedenti siano state effettuate in modo tale da ottenere risultati sensati, la componente connessa di area più grande, quindi che contiene il maggior numero di pixel, è necessariamente l'occhio. Individuata la componente connessa, è facile trovare il centroide, l'elongazione e i suoi contorni. Dai contorni si ottiene il *convex hull* e così la convessità. Infine, vengono calcolati i descrittori ellittici di Fourier per il contorno dell'occhio come precedentemente estratto.
 
 L'individuazione del sopracciglio è leggermente più complessa. Innanzitutto, si eliminano tutte le componenti connesse il cui centroide ha una ordinata pari o superiore all'ordinata più in alto della *bounding box* della componente connessa dell'occhio. Questo perché ci aspettiamo che il sopracciglio si trovi sempre e comunque al di sopra dell'occhio e mai sotto o all'interno di questo. Limitarsi a considerare il centroide della componente connessa e non le dimensioni della stessa permette sovrapposizioni tra le *bounding box* di queste, che è sempre possibile. Tra tutte le componenti connesse si sceglie sempre quella di area maggiore, che dovrebbe essere il risultato dell'aggregazione delle diverse parti del contorno del sopracciglio.
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth]{images/eyes_zone.png}
+    \includegraphics[width=0.3\textwidth]{images/eyes_canny.png}
+    \includegraphics[width=0.3\textwidth]{images/eyes_closed.png}
+    \includegraphics[width=0.5\textwidth]{images/right_eye_data.png}
+    \includegraphics[width=0.2\textwidth]{images/right_eye_efd.png}
+    \includegraphics[width=0.2\textwidth]{images/right_eyebrow_efd.png}
+    \includegraphics[width=0.5\textwidth]{images/left_eye_data.png}
+    \includegraphics[width=0.2\textwidth]{images/left_eye_efd.png}
+    \includegraphics[width=0.2\textwidth]{images/left_eyebrow_efd.png}
+    \caption{Da sinistra a destra, dall'alto in basso: le zone dell'immagine associate ad occhi e sopracciglia, il risultato dell'applicazione del ``Canny edge detector'', il risultato dell'applicazione delle operazioni di morfologia matematica. In seguito, la componente connessa più grande per l'occhio e per il sopracciglio, la loro \textit{bounding box} con il rispettivo centroide al suo interno, il loro \textit{convex hull} e infine la loro forma come estratta attraverso gli ``elliptic Fourier descriptors'', prima per l'occhio destro e poi per l'occhio sinistro}
+\end{figure}
+```
 
 ## Tono della pelle
 
@@ -75,6 +125,15 @@ Questa formula si applica infatti nello spazio La\*b\* perché è pensato per me
 
 Una volta determinata la distanza tra il colore di ciascun pixel e il colore della palette attualmente in esame, si prende la media tra queste. Minimi e massimi non sono affidabili, perché potrebbero essere influenzati da pixel spuri, come anche macchie della pelle o riflessi. Il valore medio aiuta a ridurre il peso di questi *outlier*, rimanendo comunque spostato verso il valore della maggioranza dei pixel. Il descrittore è poi costruito dalla concatenazione delle diverse medie.
 
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth]{images/after_gamma.png}
+    \includegraphics[width=0.25\textwidth]{images/skin_tone.png}
+    \caption{Un'immagine del \textit{dataset} originale con a fianco la tonalità della pelle associata}
+\end{figure}
+```
+
 ## Colore degli occhi
 
 Per quanto riguarda il colore degli occhi, di norma ha una tonalità ben diversa da quelli circostanti, rendendolo un descrittore relativamente facile da estrarre. In questo caso però non possiamo assumere che il loro colore sia dato dalla maggiore o minore presenza di un pigmento al loro interno perché, oltre a non essere vero, quelle che sono considerate le principali varianti, ovvero "marroni", "verdi" e "azzurri", hanno tonalità molto diverse tra di loro. Inoltre, il colore di un occhio ha molte sfumature date dalla sua conformazione interna, anche se in questo caso non possono certo essere apprezzabili.
@@ -88,6 +147,17 @@ Riutilizzare la tecnica precedente, ovvero quella di segmentazione dei pixel del
 La maschera è stata poi applicata all'immagine per estrarre il *color histogram* dell'iride, che è stato calcolato come l'istogramma sul canale "hue" dell'immagine nello spazio colore "HSV".
 Un istogramma calcolato solamente sul canale "hue" è sufficiente perché, in primo luogo, questo ci rende indipendenti dalla luminosità dell'immagine, che certamente influenza il colore dell'occhio. In secondo luogo, a noi interessa prevalentemente sapere la tonalità, quindi se l'occhio è più marrone, più verde o più azzurro. Per ottenere queste informazioni basta osservare come sono collocati i valori nell'istogramma: se sono presenti solamente tra il rosa e l'arancione, allora l'occhio è prevalentemente marrone, se sono presenti valori tra i verdi allora l'occhio è più verde, mentre se sono presenti valori tra i blu, allora l'occhio è azzurro. Poiché a causa del colore della pelle circostante i toni del rosso e dell'arancione rimangono sempre molto alti a prescindere dal colore dell'occhio, avrebbero potuto essere eliminati dall'istogramma. Si è però preferito lasciarli e fare in modo che sia il successivo classificatore a determinare la loro utilità o meno.
 L'istogramma colore così calcolato è stato poi normalizzato: ci interessa il rapporto relativo tra le diverse tonalità e non il valore assoluto delle stesse, che dipende dal numero di pixel sui quali è stato calcolato l'istogramma e il cui valore può portare fuori strada un potenziale classificatore a causa del loro ordine di grandezza.
+
+```{=latex}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth]{images/eye_zone.png}
+    \includegraphics[width=0.25\textwidth]{images/eye_mask.png}
+    \includegraphics[width=0.25\textwidth]{images/eye_projected.png}
+    \includegraphics[width=0.5\textwidth]{images/eye_color_histogram.png}
+    \caption{Da sinistra a destra, dall'alto in basso: la zona dell'immagine associata al solo interno dell'occhio, il risultato della costruzione della maschera binaria, l'applicazione della maschera sull'immagine originale e l'istogramma colore sul canale ``Hue'' come calcolato}
+\end{figure}
+```
 
 ## Texture del volto
 
