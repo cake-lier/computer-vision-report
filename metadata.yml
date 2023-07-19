@@ -1,7 +1,7 @@
 ---
 title: |
        | ``Identity''
-       | Progetto per il corso di Visione Artificiale
+       | Elaborato per il corso di Visione Artificiale
        | A.A. 2021-2022
 date: \today
 documentclass: report
@@ -54,7 +54,7 @@ indent: true
 fontsize: 12pt
 papersize: a4
 toc: true
-from: markdown+raw_attribute+tex_math_dollars+link_attributes+citations
+from: markdown+raw_attribute+tex_math_dollars+link_attributes+citations+grid_tables
 to: pdf
 reference-section-title: "Bibliografia"
 lang: it
